@@ -3,7 +3,7 @@
     class="py-4"
     :value="state"
     :expand-depth="2"
-    :class="$vuetify.theme.isDark ? 'jv-dark' : ''"
+    :theme="$vuetify.theme.dark ? 'custom-jv-dark' : 'custom-jv-light'"
     sort
     @keyclick="handleClick"
   />
@@ -42,22 +42,30 @@ export default class StateExplorer extends Mixins(StateMixin) {
 }
 </script>
 
-<style lang="scss">
-.jv-container>.jv-code {
-  padding: 0 !important;
+<style lang="scss" scoped>
+.custom-jv-light {
+  .jv-code {
+    padding: 0;
+  }
 }
 
-.jv-container.jv-dark {
-  background: transparent !important;
-  color: rgba(255, 255, 255, 0.8) !important;
-
-  .jv-item.jv-object { color: rgba(255, 255, 255, 0.8) !important; }
-  .jv-item.jv-array { color: rgba(255, 255, 255, 0.8) !important; }
-  .jv-key { color: rgba(255, 255, 255, 0.8) !important; }
+.custom-jv-dark {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
 
   .jv-ellipsis {
-    color: rgba(255, 255, 255, 0.5) !important;
-    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .jv-item {
+    &.jv-array { color: rgba(255, 255, 255, 0.8); }
+    &.jv-key { color: rgba(255, 255, 255, 0.8); }
+    &.jv-object { color: rgba(255, 255, 255, 0.8); }
+  }
+
+  .jv-code {
+    padding: 0;
   }
 }
 </style>
