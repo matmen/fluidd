@@ -66,7 +66,7 @@
                 v-if="message"
                 :label="$t('app.general.label.m117')"
               >
-                <span>{{ message }}</span>
+                <span v-html="message" />
               </status-label>
 
               <status-label
@@ -201,6 +201,7 @@ import FilesMixin from '@/mixins/files'
 import ToolheadMixin from '@/mixins/toolhead'
 import FilePreviewDialog from '../filesystem/FilePreviewDialog.vue'
 import type { TimeEstimates } from '@/store/printer/types'
+import DOMPurify from 'dompurify'
 
 @Component({
   components: {
@@ -289,7 +290,12 @@ export default class StatusTab extends Mixins(StateMixin, FilesMixin, ToolheadMi
    * M117 messaging
    */
   get message () {
-    return this.$store.state.printer.printer.display_status.message
+    if (!this.$store.state.printer.printer.display_status.message) return ''
+
+    const message = this.$store.state.printer.printer.display_status.message
+      .replace(/#[0-9a-f]{6}/, (color: string) => `<span style="color: ${color}">${color}</span>`)
+
+    return DOMPurify.sanitize(message)
   }
 
   /**
