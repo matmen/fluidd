@@ -99,7 +99,7 @@
       />
     </v-toolbar>
 
-    <v-card-text>
+    <v-card-text class="pt-0">
       <v-data-table
         :items="availableSpools"
         :headers="visibleHeaders"
