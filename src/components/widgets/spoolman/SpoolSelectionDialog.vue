@@ -29,9 +29,7 @@
             >
               $camera
             </v-icon>
-            <template v-if="!isMobileViewport">
-              {{ $t('app.spoolman.btn.scan_code') }}
-            </template>
+            {{ $t('app.spoolman.btn.scan_code') }}
             <v-icon
               small
               class="ml-1"
@@ -73,9 +71,7 @@
         >
           $camera
         </v-icon>
-        <template v-if="!isMobileViewport">
-          {{ $t('app.spoolman.btn.scan_code') }}
-        </template>
+        {{ $t('app.spoolman.btn.scan_code') }}
       </app-btn>
     </template>
 
@@ -95,7 +91,7 @@
         hide-details
         append-icon="$magnify"
         style="max-width: 360px"
-        class="mx-2"
+        class="ml-1"
       />
     </v-toolbar>
 
