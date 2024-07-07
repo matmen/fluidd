@@ -1,7 +1,7 @@
 import type { ActionTree } from 'vuex'
 import type {
   Spool,
-  SpoolmanProxyResponse,
+  SpoolmanProxyResponse, SpoolmanSettings,
   SpoolmanState,
   WebsocketBasePayload,
   WebsocketFilamentPayload,
@@ -29,6 +29,7 @@ export const actions: ActionTree<SpoolmanState, RootState> = {
   async init () {
     SocketActions.serverSpoolmanGetSpoolId()
     SocketActions.serverSpoolmanProxyGetAvailableSpools()
+    SocketActions.serverSpoolmanProxyGetSettings()
   },
 
   async onActiveSpool ({ commit }, payload) {
@@ -123,6 +124,48 @@ export const actions: ActionTree<SpoolmanState, RootState> = {
     commit('setAvailableSpools', [...payload])
     commit('setConnected', true)
     dispatch('initializeWebsocketConnection')
+  },
+
+  async onSettings ({ commit }, payload) {
+    const settings: SpoolmanSettings = {
+      extra_fields_vendor: {},
+      extra_fields_filament: {},
+      extra_fields_spool: {},
+      currency: null
+    }
+
+    const { currency, extra_fields_spool, extra_fields_filament, extra_fields_vendor } = payload
+
+    if (currency.is_set) settings.currency = JSON.parse(currency.value)
+
+    if (extra_fields_spool.is_set) {
+      try {
+        const fields = JSON.parse(extra_fields_spool.value)
+        for (const field of fields) settings.extra_fields_spool[field.key] = field
+      } catch (err) {
+        consola.warn(`${logPrefix} failed to parse extra_fields_spool`, err)
+      }
+    }
+
+    if (extra_fields_filament.is_set) {
+      try {
+        const fields = JSON.parse(extra_fields_filament.value)
+        for (const field of fields) settings.extra_fields_filament[field.key] = field
+      } catch (err) {
+        consola.warn(`${logPrefix} failed to parse extra_fields_filament`, err)
+      }
+    }
+
+    if (extra_fields_vendor.is_set) {
+      try {
+        const fields = JSON.parse(extra_fields_vendor.value)
+        for (const field of fields) settings.extra_fields_vendor[field.key] = field
+      } catch (err) {
+        consola.warn(`${logPrefix} failed to parse extra_fields_vendor`, err)
+      }
+    }
+
+    commit('setSettings', settings)
   },
 
   async onStatusChanged ({ commit, dispatch }, payload) {

@@ -7,6 +7,12 @@ export const defaultState = (): SpoolmanState => {
     connected: false,
     dialog: {
       show: false
+    },
+    settings: {
+      extra_fields_vendor: {},
+      extra_fields_filament: {},
+      extra_fields_spool: {},
+      currency: null
     }
   }
 }

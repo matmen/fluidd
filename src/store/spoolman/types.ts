@@ -5,6 +5,8 @@ export interface Vendor {
   registered: Date;
   name: string;
   comment?: string;
+
+  extra: SpoolmanExtraField;
 }
 
 export interface Filament {
@@ -24,6 +26,8 @@ export interface Filament {
   settings_extruder_temp?: number;
   settings_bed_temp?: number;
   color_hex?: string;
+
+  extra: SpoolmanExtraField;
 }
 
 export interface Spool {
@@ -41,6 +45,8 @@ export interface Spool {
   comment?: string;
   first_used?: Date;
   last_used?: Date;
+
+  extra: SpoolmanExtraField;
 }
 
 export interface SpoolmanState {
@@ -49,6 +55,7 @@ export interface SpoolmanState {
   connected: boolean;
   dialog: SpoolSelectionDialogState;
   socket?: WebSocket;
+  settings: SpoolmanSettings;
 }
 
 export interface SpoolSelectionDialogState {
@@ -79,6 +86,13 @@ export interface WebsocketVendorPayload extends WebsocketBasePayload {
   payload: Vendor;
 }
 
+export interface SpoolmanSettings {
+  extra_fields_spool: { [key: string]: SpoolmanExtraFieldDefinition };
+  extra_fields_filament: { [key: string]: SpoolmanExtraFieldDefinition };
+  extra_fields_vendor: { [key: string]: SpoolmanExtraFieldDefinition };
+  currency: string | null;
+}
+
 export interface MacroWithSpoolId extends Macro {
   variables: {
     spool_id: number | null;
@@ -94,4 +108,14 @@ export type SpoolmanProxyResponse<T> = T | {
   error: string | {
     message: string
   }
+}
+
+export interface SpoolmanExtraField { [key: string]: string | number | undefined }
+export interface SpoolmanExtraFieldDefinition {
+  key: string;
+  name: string;
+  order: number | null;
+  unit: string | null;
+  field_type: 'text' | 'integer' | 'integer_range' | 'float' | 'float_range' | 'datetime' | 'boolean' | 'choice';
+  // more keys we don't care about as of now
 }

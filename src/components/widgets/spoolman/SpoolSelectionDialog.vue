@@ -201,7 +201,7 @@
 import { Component, Mixins, Watch } from 'vue-property-decorator'
 import StateMixin from '@/mixins/state'
 import { SocketActions } from '@/api/socketActions'
-import type { MacroWithSpoolId, Spool } from '@/store/spoolman/types'
+import type { SpoolmanExtraFieldDefinition, MacroWithSpoolId, Spool } from '@/store/spoolman/types'
 import BrowserMixin from '@/mixins/browser'
 import QRReader from '@/components/widgets/spoolman/QRReader.vue'
 import type { WebcamConfig } from '@/store/webcams/types'
@@ -280,10 +280,37 @@ export default class SpoolSelectionDialog extends Mixins(StateMixin, BrowserMixi
         filamentName = `${spool.filament.vendor.name} - ${filamentName}`
       }
 
+      const extraFields = [
+        ['spool', spool.extra],
+        ['filament', spool.filament.extra],
+        ['vendor', spool.filament.vendor?.extra ?? {}]
+      ]
+      const extra: Record<string, any> = {}
+
+      for (const [key, fields] of extraFields) {
+        const definition: {[key: string]: SpoolmanExtraFieldDefinition} = this.$store.state.spoolman.settings[`extra_fields_${key}`]
+
+        for (const fieldKey in fields) {
+          let value = fields[fieldKey]
+          try { value = JSON.parse(value) } catch {}
+          switch (definition[fieldKey].field_type) {
+            case 'integer_range':
+            case 'float_range': {
+              const range: number[] = value
+              value = range.map(n => Math.round(n / 100) * 100).join(' - ')
+              break
+            }
+          }
+
+          extra[`extra_${key}_${fieldKey}`] = value
+        }
+      }
+
       spools.push({
         ...spool,
         filament_name: filamentName,
-        material: spool.filament.material
+        material: spool.filament.material,
+        ...extra
       })
     }
 
@@ -301,10 +328,31 @@ export default class SpoolSelectionDialog extends Mixins(StateMixin, BrowserMixi
     ].map((value) => ({
       text: this.$tc(`app.spoolman.label.${value}`),
       value,
-      configurable: value !== 'filament_name'
+      visible: true
     }))
 
-    return this.$store.getters['config/getMergedTableHeaders'](headers, 'spoolman')
+    const settings = this.$store.state.spoolman.settings
+    const extraFields = [
+      ['vendor', settings.extra_fields_vendor],
+      ['filament', settings.extra_fields_filament],
+      ['spool', settings.extra_fields_spool]
+    ]
+
+    for (const [key, fields] of extraFields) {
+      for (const fieldName in fields) {
+        const field = fields[fieldName]
+        headers.push({
+          text: field.name ?? field.key,
+          value: `extra_${key}_${field.key}`,
+          visible: false // hide extra fields by default
+        })
+      }
+    }
+
+    return this.$store.getters['config/getMergedTableHeaders'](
+      headers.map(h => ({ ...h, configurable: h.value !== 'filament_name' })),
+      'spoolman'
+    )
   }
 
   get visibleHeaders (): AppTableHeader[] {

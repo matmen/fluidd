@@ -799,5 +799,17 @@ export const SocketActions = {
         dispatch: 'spoolman/onAvailableSpools'
       }
     )
+  },
+
+  async serverSpoolmanProxyGetSettings () {
+    baseEmit(
+      'server.spoolman.proxy', {
+        params: {
+          request_method: 'GET',
+          path: '/v1/setting'
+        },
+        dispatch: 'spoolman/onSettings'
+      }
+    )
   }
 }

@@ -34,5 +34,9 @@ export const mutations: MutationTree<SpoolmanState> = {
 
   setConnected (state, payload) {
     state.connected = payload
+  },
+
+  setSettings (state, payload) {
+    state.settings = payload
   }
 }
